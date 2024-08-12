@@ -12,6 +12,7 @@ const PIXELS = 16
 @export var jump_buffer_timer: float = 0.1
 
 @onready var coyote_timer = $Coyote_Timer
+@onready var animated_sprite = $AnimatedSprite2D
 
 var jump_velocity: float
 var jump_gravity: float
@@ -22,12 +23,6 @@ var jump_buffer: bool = false
 
 func _ready() -> void:
 	calculate_movement_parameters()
-
-func calculate_movement_parameters() -> void:
-	jump_gravity = (2 * jump_height) / pow(jump_peak_time, 2)
-	fall_gravity = (2 * jump_height) / pow(jump_fall_time, 2)
-	jump_velocity = jump_gravity * jump_peak_time
-	speed = jump_distance / (jump_peak_time + jump_fall_time)
 
 func _physics_process(delta):
 	# handles gravity
@@ -47,22 +42,22 @@ func _physics_process(delta):
 			jump_buffer = false
 	
 	# handles jump
-	if Input.is_action_just_pressed("ui_accept"):
+	if Input.is_action_just_pressed("jump"):
 		if jump_available:
 			jump()
 		else:
 			jump_buffer = true
 			get_tree().create_timer(jump_buffer_timer).timeout.connect(on_jump_buffer_timeout)
 	
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
-	var direction = Input.get_axis("ui_left", "ui_right")
-	if direction:
-		velocity.x = direction * speed
-	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
-
+	# handles movement
+	get_direction_input()
 	move_and_slide()
+	
+func calculate_movement_parameters() -> void:
+	jump_gravity = (2 * jump_height) / pow(jump_peak_time, 2)
+	fall_gravity = (2 * jump_height) / pow(jump_fall_time, 2)
+	jump_velocity = jump_gravity * jump_peak_time
+	speed = jump_distance / (jump_peak_time + jump_fall_time)
 	
 func jump() -> void:
 	velocity.y -= jump_velocity
@@ -73,3 +68,14 @@ func _on_coyote_timer_timeout() -> void:
 	
 func on_jump_buffer_timeout() -> void:
 	jump_buffer = false
+	
+func get_direction_input() -> void:
+	# get direction -1 (left), 0 (still) or 1 (right)
+	var direction = Input.get_axis("move_left", "move_right")
+	
+	if direction > 0:
+		animated_sprite.flip_h = false
+	elif direction < 0:
+		animated_sprite.flip_h = true
+
+	velocity.x = direction * speed
