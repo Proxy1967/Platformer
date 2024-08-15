@@ -3,7 +3,7 @@ extends Node
 @onready var score_label = $ScoreLabel
 @onready var game_over_label = $GameOverLabel
 
-var score = 0
+var score: int = 0
 
 func add_point() -> void:
 	score += 1

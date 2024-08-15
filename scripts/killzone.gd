@@ -2,6 +2,9 @@ extends Area2D
 
 @onready var timer = $Timer
 @onready var animated_sprite = $AnimatedSprite2D
+@onready var game_manager = %GameManager
+
+var death_count: int = 0
 
 func _on_body_entered(body):
 	print("You died")
