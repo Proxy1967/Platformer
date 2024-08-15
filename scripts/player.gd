@@ -7,12 +7,13 @@ const PIXELS = 16
 @export var jump_peak_time: float = 0.25
 @export var jump_fall_time: float = 0.25
 @export var jump_height: float = 3.0 * PIXELS
-@export var jump_distance: float = 4.0 * PIXELS
+@export var jump_distance: float = 5.0 * PIXELS
 @export var coyote_time: float = 0.1
 @export var jump_buffer_timer: float = 0.1
 
 @onready var coyote_timer = $Coyote_Timer
 @onready var animated_sprite = $AnimatedSprite2D
+@onready var animation_player = $AnimationPlayer
 
 var jump_velocity: float
 var jump_gravity: float
@@ -50,8 +51,18 @@ func _physics_process(delta):
 			get_tree().create_timer(jump_buffer_timer).timeout.connect(on_jump_buffer_timeout)
 	
 	# handles movement
-	get_direction_input()
+	var direction: int = get_direction_input()
 	move_and_slide()
+	
+	# handles animation
+	if is_on_floor():
+		if direction == 0:
+			animated_sprite.play("idle")
+		else:
+			animated_sprite.play("run")
+	else:
+		animated_sprite.play("jump")
+	
 	
 func calculate_movement_parameters() -> void:
 	jump_gravity = (2 * jump_height) / pow(jump_peak_time, 2)
@@ -61,6 +72,7 @@ func calculate_movement_parameters() -> void:
 	
 func jump() -> void:
 	velocity.y -= jump_velocity
+	animation_player.play("jump")
 	jump_available = false
 	
 func _on_coyote_timer_timeout() -> void:
@@ -69,7 +81,7 @@ func _on_coyote_timer_timeout() -> void:
 func on_jump_buffer_timeout() -> void:
 	jump_buffer = false
 	
-func get_direction_input() -> void:
+func get_direction_input() -> int:
 	# get direction -1 (left), 0 (still) or 1 (right)
 	var direction = Input.get_axis("move_left", "move_right")
 	
@@ -79,3 +91,4 @@ func get_direction_input() -> void:
 		animated_sprite.flip_h = true
 
 	velocity.x = direction * speed
+	return direction

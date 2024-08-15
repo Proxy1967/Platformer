@@ -10,10 +10,5 @@
 
 ## Todo
 
-- Improve movement -> seems kinda clunky / slow
-
-- 3 levels with different grass types
-- Every level should have an ending
-- Every level should display the number of the level on start of the level for 1 second
+- Make an ending
 - Make a pause and continue feature and controls option
-- More enemies, but no killing for now only avoid them
